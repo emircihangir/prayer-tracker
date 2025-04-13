@@ -1,0 +1,9 @@
+*
+!lib
+!lib/**
+!assets
+!assets/**
+!.gitignore
+!pubspec.yaml
+!pubspec.lock
+!README.md
