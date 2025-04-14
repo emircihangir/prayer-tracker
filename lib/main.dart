@@ -1,9 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+class BoxOpacitiesModel extends ChangeNotifier {
+  final Map<String, double> _boxOpacities = {
+    "morning": 0,
+    "noon": 0,
+    "afternoon": 0,
+    "night": 0,
+    "evening": 0
+  };
+  Map<String, double> get boxOpacities => _boxOpacities;
+
+  void updateValue(String key, double newValue) {
+    _boxOpacities[key] = newValue;
+    notifyListeners();
+  }
+}
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => BoxOpacitiesModel(),
+    builder: (context, child) => const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -20,11 +40,17 @@ class MyApp extends StatelessWidget {
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
+    void boxPressed({required String caller}) {
+      double currentValue = Provider.of<BoxOpacitiesModel>(context, listen: false).boxOpacities[caller]!;
+      double newValue = ((currentValue == 1) ? 0 : 1) * (currentValue + 0.5);
+      Provider.of<BoxOpacitiesModel>(context, listen: false).updateValue(caller, newValue);
+    }
+
     return CupertinoApp(
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -38,13 +64,20 @@ class MyApp extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Morning"),
-                    Container(
-                      width: 30,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.activeBlue.withOpacity(0.5),
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                    const Text("Morning prayer"),
+                    GestureDetector(
+                      onTap: () => boxPressed(caller: "morning"),
+                      child: Consumer<BoxOpacitiesModel>(
+                        builder: (context, value, child) {
+                          return Container(
+                            width: 30,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["morning"]!),
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                            ),
+                          );
+                        },
                       ),
                     )
                   ],
@@ -52,46 +85,74 @@ class MyApp extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Noon"),
-                    Container(
-                      width: 30,
-                      height: 50,
-                      decoration: BoxDecoration(color: CupertinoColors.activeBlue),
+                    const Text("Noon prayer"),
+                    GestureDetector(
+                      onTap: () => boxPressed(caller: "noon"),
+                      child: Consumer<BoxOpacitiesModel>(
+                        builder: (context, value, child) {
+                          return Container(
+                            width: 30,
+                            height: 50,
+                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["noon"]!)),
+                          );
+                        },
+                      ),
                     )
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Afternoon"),
-                    Container(
-                      width: 30,
-                      height: 50,
-                      decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(0.5)),
+                    const Text("Afternoon prayer"),
+                    GestureDetector(
+                      onTap: () => boxPressed(caller: "afternoon"),
+                      child: Consumer<BoxOpacitiesModel>(
+                        builder: (context, value, child) {
+                          return Container(
+                            width: 30,
+                            height: 50,
+                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["afternoon"]!)),
+                          );
+                        },
+                      ),
                     )
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Night"),
-                    Container(
-                      width: 30,
-                      height: 50,
-                      decoration: BoxDecoration(color: CupertinoColors.activeBlue),
+                    const Text("Night prayer"),
+                    GestureDetector(
+                      onTap: () => boxPressed(caller: "night"),
+                      child: Consumer<BoxOpacitiesModel>(
+                        builder: (context, value, child) {
+                          return Container(
+                            width: 30,
+                            height: 50,
+                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["night"]!)),
+                          );
+                        },
+                      ),
                     )
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Evening"),
-                    Container(
-                      width: 30,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.activeBlue.withOpacity(0.5),
-                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                    const Text("Evening prayer"),
+                    GestureDetector(
+                      onTap: () => boxPressed(caller: "evening"),
+                      child: Consumer<BoxOpacitiesModel>(
+                        builder: (context, value, child) {
+                          return Container(
+                            width: 30,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["evening"]!),
+                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15)),
+                            ),
+                          );
+                        },
                       ),
                     )
                   ],
