@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +19,11 @@ class BoxOpacitiesModel extends ChangeNotifier {
   void updateValueSilently(String key, double newValue) => _boxOpacities[key] = newValue;
 }
 
+late File dataFile;
+late List<String> dataFileContent;
+final String today = DateFormat('dd.MM.yyyy').format(DateTime.now());
+late List<String> todaysRow;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -32,8 +35,8 @@ void main() async {
   ));
 
   Directory documentsDir = await getApplicationDocumentsDirectory();
-  File dataFile = File("${documentsDir.path}/data.csv");
-  final String today = DateFormat('dd.MM.yyyy').format(DateTime.now());
+  dataFile = File("${documentsDir.path}/data.csv");
+
   Map<String, double> initialOpacities = {
     "morning": 0,
     "noon": 0,
@@ -45,22 +48,21 @@ void main() async {
   // Check if data file exists.
   if (await dataFile.exists() == false) {
     // Data file does not exists. First time user.
-    print("Data file does not exists. First time user.");
     await dataFile.writeAsString("$today , 0 , 0 , 0 , 0 , 0");
   } else {
     // Data file exists. Check if today exists.
-    List<String> dataFileContent = (await dataFile.readAsString()).split("\n");
-    List<String>? todaysRow;
+    dataFileContent = (await dataFile.readAsString()).split("\n");
+    bool exists = false;
     for (var element in dataFileContent) {
       List<String> row = element.split(" , ");
       if (row[0] == today) {
         todaysRow = List<String>.from(row);
+        exists = true;
         break;
       }
     }
-    if (todaysRow != null) {
+    if (exists) {
       // Today exists. Set the initial box opacity values based on the data.
-      print("Today exists. Setting the initial box opacity values based on the data.");
       initialOpacities["morning"] = double.parse(todaysRow[1]);
       initialOpacities["noon"] = double.parse(todaysRow[2]);
       initialOpacities["afternoon"] = double.parse(todaysRow[3]);
@@ -68,11 +70,18 @@ void main() async {
       initialOpacities["evening"] = double.parse(todaysRow[5]);
     } else {
       // Today does not exist. Create today's line in the data file.
-      print("Today does not exist. Creating today's line in the data file.");
-      String todaysLine = "$today , 0 , 0 , 0 , 0 , 0";
       final sink = dataFile.openWrite(mode: FileMode.append);
-      sink.write("\n$todaysLine");
+      sink.write("\n$today , 0 , 0 , 0 , 0 , 0");
       await sink.close();
+      todaysRow = [
+        today,
+        '0',
+        '0',
+        '0',
+        '0',
+        '0'
+      ];
+      dataFileContent.add(todaysRow.join(" , "));
     }
   }
 
@@ -91,7 +100,22 @@ class MyApp extends StatelessWidget {
       double currentValue = Provider.of<BoxOpacitiesModel>(context, listen: false).boxOpacities[caller]!;
       double newValue = ((currentValue == 1) ? 0 : 1) * (currentValue + 0.5);
 
-      Provider.of<BoxOpacitiesModel>(context, listen: false).updateValue(caller, newValue);
+      if (caller == "morning") {
+        todaysRow[1] = newValue.toString();
+      } else if (caller == "noon") {
+        todaysRow[2] = newValue.toString();
+      } else if (caller == "afternoon") {
+        todaysRow[3] = newValue.toString();
+      } else if (caller == "night") {
+        todaysRow[4] = newValue.toString();
+      } else if (caller == "evening") {
+        todaysRow[5] = newValue.toString();
+      }
+      // debugger();
+      dataFileContent[dataFileContent.length - 1] = todaysRow.join(" , ");
+      await dataFile.writeAsString(dataFileContent.join("\n"));
+
+      if (context.mounted) Provider.of<BoxOpacitiesModel>(context, listen: false).updateValue(caller, newValue);
     }
 
     return CupertinoApp(
@@ -123,6 +147,11 @@ class MyApp extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["morning"]!),
                               borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                              border: Border(
+                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                top: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                              ),
                             ),
                           );
                         },
@@ -141,7 +170,13 @@ class MyApp extends StatelessWidget {
                           return Container(
                             width: 30,
                             height: 50,
-                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["noon"]!)),
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["noon"]!),
+                              border: Border(
+                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -159,7 +194,13 @@ class MyApp extends StatelessWidget {
                           return Container(
                             width: 30,
                             height: 50,
-                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["afternoon"]!)),
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["afternoon"]!),
+                              border: Border(
+                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -177,7 +218,13 @@ class MyApp extends StatelessWidget {
                           return Container(
                             width: 30,
                             height: 50,
-                            decoration: BoxDecoration(color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["night"]!)),
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["night"]!),
+                              border: Border(
+                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -198,6 +245,11 @@ class MyApp extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["evening"]!),
                               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15)),
+                              border: Border(
+                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                                bottom: BorderSide(width: 2, color: CupertinoColors.activeBlue),
+                              ),
                             ),
                           );
                         },
