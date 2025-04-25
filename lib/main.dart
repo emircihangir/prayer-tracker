@@ -61,20 +61,14 @@ void main() async {
   // Check if data file exists.
   if (await dataFile.exists() == false) {
     // Data file does not exists. First time user.
-    await dataFile.writeAsString("$today , 0 , 0 , 0 , 0 , 0");
+    await dataFile.writeAsString("$today , 0.0 , 0.0 , 0.0 , 0.0 , 0.0");
+    firstDate = DateFormat("dd.MM.yyyy").parse(today);
   } else {
     // Data file exists. Check if today exists.
     dataFileContent = (await dataFile.readAsString()).split("\n");
-    bool exists = false;
-    for (var element in dataFileContent) {
-      List<String> row = element.split(" , ");
-      if (row[0] == today) {
-        todaysRow = List<String>.from(row);
-        exists = true;
-        break;
-      }
-    }
-    if (exists) {
+    firstDate = DateFormat("dd.MM.yyyy").parse(dataFileContent.first.split(" , ").first);
+
+    if (todayExists()) {
       // Today exists. Set the initial box opacity values based on the data.
       initialOpacities["morning"] = double.parse(todaysRow[1]);
       initialOpacities["noon"] = double.parse(todaysRow[2]);
@@ -84,15 +78,15 @@ void main() async {
     } else {
       // Today does not exist. Create today's line in the data file.
       final sink = dataFile.openWrite(mode: FileMode.append);
-      sink.write("\n$today , 0 , 0 , 0 , 0 , 0");
+      sink.write("\n$today , 0.0 , 0.0 , 0.0 , 0.0 , 0.0");
       await sink.close();
       todaysRow = [
         today,
-        '0',
-        '0',
-        '0',
-        '0',
-        '0'
+        '0.0',
+        '0.0',
+        '0.0',
+        '0.0',
+        '0.0'
       ];
       dataFileContent.add(todaysRow.join(" , "));
     }
@@ -124,7 +118,7 @@ class MyApp extends StatelessWidget {
       } else if (caller == "evening") {
         todaysRow[5] = newValue.toString();
       }
-      // debugger();
+
       dataFileContent[dataFileContent.length - 1] = todaysRow.join(" , ");
       await dataFile.writeAsString(dataFileContent.join("\n"));
 
