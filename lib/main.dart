@@ -125,146 +125,80 @@ class MyApp extends StatelessWidget {
       if (context.mounted) Provider.of<BoxOpacitiesModel>(context, listen: false).updateValue(caller, newValue);
     }
 
+    Widget graphBox({required double boxOpacity, required bool isClickable, String? boxType}) {
+      return Expanded(
+        flex: 1,
+        child: GestureDetector(
+          onTap: isClickable ? () => boxPressed(caller: boxType!) : null,
+          child: Container(
+            height: 57.6,
+            color: CupertinoColors.activeBlue.withOpacity(boxOpacity),
+          ),
+        ),
+      );
+    }
+
+    List<String>? retrieveDatesRow(String date) {
+      for (var row in dataFileContent) {
+        if (row.split(" , ").first == date) return row.split(" , ");
+      }
+
+      return null;
+    }
+
     return CupertinoApp(
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('MMMM d').format(DateTime.now()),
-                  style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Morning prayer"),
-                    GestureDetector(
-                      onTap: () => boxPressed(caller: "morning"),
-                      child: Consumer<BoxOpacitiesModel>(
-                        builder: (context, value, child) {
-                          return Container(
-                            width: 30,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["morning"]!),
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-                              border: Border(
-                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                top: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Noon prayer"),
-                    GestureDetector(
-                      onTap: () => boxPressed(caller: "noon"),
-                      child: Consumer<BoxOpacitiesModel>(
-                        builder: (context, value, child) {
-                          return Container(
-                            width: 30,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["noon"]!),
-                              border: Border(
-                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Afternoon prayer"),
-                    GestureDetector(
-                      onTap: () => boxPressed(caller: "afternoon"),
-                      child: Consumer<BoxOpacitiesModel>(
-                        builder: (context, value, child) {
-                          return Container(
-                            width: 30,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["afternoon"]!),
-                              border: Border(
-                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Night prayer"),
-                    GestureDetector(
-                      onTap: () => boxPressed(caller: "night"),
-                      child: Consumer<BoxOpacitiesModel>(
-                        builder: (context, value, child) {
-                          return Container(
-                            width: 30,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["night"]!),
-                              border: Border(
-                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Evening prayer"),
-                    GestureDetector(
-                      onTap: () => boxPressed(caller: "evening"),
-                      child: Consumer<BoxOpacitiesModel>(
-                        builder: (context, value, child) {
-                          return Container(
-                            width: 30,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.activeBlue.withOpacity(value.boxOpacities["evening"]!),
-                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15)),
-                              border: Border(
-                                left: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                right: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                                bottom: BorderSide(width: 2, color: CupertinoColors.activeBlue),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ],
+            padding: const EdgeInsets.only(top: 32.0, right: 8.0),
+            child: ListView.builder(
+              reverse: true,
+              itemCount: (DateTime.now().difference(firstDate).inDays) + 1,
+              itemBuilder: (context, index) {
+                DateTime currentDate = firstDate.add(Duration(days: index));
+                String cdUIformatted = DateFormat("MMMM dd").format(currentDate);
+                String cdFormatted = DateFormat("dd.MM.yyy").format(currentDate);
+                List<String> currentDatesRow = retrieveDatesRow(cdFormatted) ??
+                    [
+                      cdFormatted,
+                      "0.0",
+                      "0.0",
+                      "0.0",
+                      "0.0",
+                      "0.0"
+                    ];
+
+                // only today's row should be a consumer of BoxOpacities model, because you can only update today's boxes.
+                if (cdFormatted != today) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(flex: 2, child: Center(child: Text(cdUIformatted))),
+                      graphBox(boxOpacity: double.parse(currentDatesRow[1]), isClickable: false),
+                      graphBox(boxOpacity: double.parse(currentDatesRow[2]), isClickable: false),
+                      graphBox(boxOpacity: double.parse(currentDatesRow[3]), isClickable: false),
+                      graphBox(boxOpacity: double.parse(currentDatesRow[4]), isClickable: false),
+                      graphBox(boxOpacity: double.parse(currentDatesRow[5]), isClickable: false),
+                    ],
+                  );
+                } else {
+                  return Consumer<BoxOpacitiesModel>(
+                    builder: (context, value, child) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(flex: 2, child: Center(child: Text(cdUIformatted))),
+                          graphBox(boxOpacity: value.boxOpacities["morning"]!, isClickable: true, boxType: "morning"),
+                          graphBox(boxOpacity: value.boxOpacities["noon"]!, isClickable: true, boxType: "noon"),
+                          graphBox(boxOpacity: value.boxOpacities["afternoon"]!, isClickable: true, boxType: "afternoon"),
+                          graphBox(boxOpacity: value.boxOpacities["night"]!, isClickable: true, boxType: "night"),
+                          graphBox(boxOpacity: value.boxOpacities["evening"]!, isClickable: true, boxType: "evening"),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
             ),
           ),
         ),
