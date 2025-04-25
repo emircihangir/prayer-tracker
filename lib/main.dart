@@ -23,6 +23,19 @@ late File dataFile;
 late List<String> dataFileContent;
 final String today = DateFormat('dd.MM.yyyy').format(DateTime.now());
 late List<String> todaysRow;
+late DateTime firstDate; // The first date in the data file. Used to build the graph view.
+
+/// Checks if today's data exists in the data file.
+bool todayExists() {
+  for (var element in dataFileContent) {
+    List<String> row = element.split(" , ");
+    if (row[0] == today) {
+      todaysRow = List<String>.from(row);
+      return true;
+    }
+  }
+  return false;
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
