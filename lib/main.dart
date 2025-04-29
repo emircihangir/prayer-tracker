@@ -126,13 +126,18 @@ class MyApp extends StatelessWidget {
     }
 
     Widget graphBox({required double boxOpacity, required bool isClickable, String? boxType}) {
-      return Expanded(
-        flex: 1,
-        child: GestureDetector(
+      if (boxOpacity == 0.5) boxOpacity = 0.15;
+
+      return GestureDetector(
           onTap: isClickable ? () => boxPressed(caller: boxType!) : null,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Container(
-            height: 57.6,
-            color: CupertinoColors.activeBlue.withOpacity(boxOpacity),
+            height: 35,
+            width: 35,
+            color: CupertinoColors.activeBlue.withValues(
+              alpha: boxOpacity,
+            ),
           ),
         ),
       );
