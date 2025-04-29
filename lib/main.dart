@@ -147,6 +147,7 @@ class MyApp extends StatelessWidget {
     }
 
     return CupertinoApp(
+      theme: CupertinoThemeData(brightness: Brightness.light),
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Padding(
