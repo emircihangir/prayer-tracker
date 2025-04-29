@@ -22,6 +22,7 @@ class BoxOpacitiesModel extends ChangeNotifier {
 late File dataFile;
 late List<String> dataFileContent;
 final String today = DateFormat('dd.MM.yyyy').format(DateTime.now());
+final DateTime todaysDate = DateFormat('dd.MM.yyyy').parse(today);
 late List<String> todaysRow;
 late DateTime firstDate; // The first date in the data file. Used to build the graph view.
 
@@ -129,7 +130,7 @@ class MyApp extends StatelessWidget {
       if (boxOpacity == 0.5) boxOpacity = 0.15;
 
       return GestureDetector(
-          onTap: isClickable ? () => boxPressed(caller: boxType!) : null,
+        onTap: isClickable ? () => boxPressed(caller: boxType!) : null,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
@@ -158,10 +159,9 @@ class MyApp extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 32.0, right: 8.0),
             child: ListView.builder(
-              reverse: true,
               itemCount: (DateTime.now().difference(firstDate).inDays) + 1,
               itemBuilder: (context, index) {
-                DateTime currentDate = firstDate.add(Duration(days: index));
+                DateTime currentDate = todaysDate.subtract(Duration(days: index));
                 String cdUIformatted = DateFormat("MMMM dd").format(currentDate);
                 String cdFormatted = DateFormat("dd.MM.yyy").format(currentDate);
                 List<String> currentDatesRow = retrieveDatesRow(cdFormatted) ??
@@ -177,9 +177,9 @@ class MyApp extends StatelessWidget {
                 // only today's row should be a consumer of BoxOpacities model, because you can only update today's boxes.
                 if (cdFormatted != today) {
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(flex: 2, child: Center(child: Text(cdUIformatted))),
+                      Text(cdUIformatted),
                       graphBox(boxOpacity: double.parse(currentDatesRow[1]), isClickable: false),
                       graphBox(boxOpacity: double.parse(currentDatesRow[2]), isClickable: false),
                       graphBox(boxOpacity: double.parse(currentDatesRow[3]), isClickable: false),
@@ -191,9 +191,9 @@ class MyApp extends StatelessWidget {
                   return Consumer<BoxOpacitiesModel>(
                     builder: (context, value, child) {
                       return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(flex: 2, child: Center(child: Text(cdUIformatted))),
+                          Text(cdUIformatted),
                           graphBox(boxOpacity: value.boxOpacities["morning"]!, isClickable: true, boxType: "morning"),
                           graphBox(boxOpacity: value.boxOpacities["noon"]!, isClickable: true, boxType: "noon"),
                           graphBox(boxOpacity: value.boxOpacities["afternoon"]!, isClickable: true, boxType: "afternoon"),
