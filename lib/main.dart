@@ -136,9 +136,16 @@ class MyApp extends StatelessWidget {
           child: Container(
             height: 35,
             width: 35,
-            color: CupertinoColors.activeBlue.withValues(
-              alpha: boxOpacity,
-            ),
+            decoration: BoxDecoration(
+                color: CupertinoColors.activeBlue.withValues(
+                  alpha: boxOpacity,
+                ),
+                border: Border.all(
+                    color: CupertinoColors.black.withValues(
+                      alpha: 0.03,
+                    ),
+                    width: 2,
+                    strokeAlign: BorderSide.strokeAlignOutside)),
           ),
         ),
       );
@@ -157,7 +164,7 @@ class MyApp extends StatelessWidget {
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(top: 32.0, right: 8.0),
+            padding: const EdgeInsets.only(top: 32.0),
             child: ListView.builder(
               itemCount: (DateTime.now().difference(firstDate).inDays) + 1,
               itemBuilder: (context, index) {
@@ -179,7 +186,7 @@ class MyApp extends StatelessWidget {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(cdUIformatted),
+                      Expanded(child: Center(child: Text(cdUIformatted))),
                       graphBox(boxOpacity: double.parse(currentDatesRow[1]), isClickable: false),
                       graphBox(boxOpacity: double.parse(currentDatesRow[2]), isClickable: false),
                       graphBox(boxOpacity: double.parse(currentDatesRow[3]), isClickable: false),
@@ -193,7 +200,7 @@ class MyApp extends StatelessWidget {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(cdUIformatted),
+                          Expanded(child: Center(child: Text(cdUIformatted))),
                           graphBox(boxOpacity: value.boxOpacities["morning"]!, isClickable: true, boxType: "morning"),
                           graphBox(boxOpacity: value.boxOpacities["noon"]!, isClickable: true, boxType: "noon"),
                           graphBox(boxOpacity: value.boxOpacities["afternoon"]!, isClickable: true, boxType: "afternoon"),
